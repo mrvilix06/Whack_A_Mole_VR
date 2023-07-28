@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Valve.VR;
 
 /*
@@ -26,13 +27,17 @@ public class BasicPointer : Pointer
     private delegate void Del();
     private string hover = "";
 
+    public Vector3 MappedPosition { get; private set;}
+
+
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
     public override void PositionUpdated()
     {
+        performanceManager.UpdatePointerData(this);
         if (!active) return;
 
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
-        Vector3 mappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
+        MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
         Vector3 rayDirection = (mappedPosition - origin).normalized;
 

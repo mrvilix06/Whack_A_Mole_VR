@@ -78,9 +78,38 @@ public class SoundManager : MonoBehaviour
         
         if (_audioSource)
         {
+            _audioSource.pitch = 1f; // reset pitch to 1f in case it was changed by PlaySoundWithPitch
             _audioSource.PlayOneShot(GetAudioClip(sound));
         }
     }
+
+    public void PlaySoundWithPitch(GameObject source, Sound sound, float feedback)
+    {
+        float pitchValue = (feedback*0.47f)+0.7f;
+        Debug.Log("Pitch value: " + pitchValue);
+        AudioSource _audioSource = source.GetComponent<AudioSource>();
+        if (source == null)
+        {
+            AudioSource instanceAudioSource = SoundManager.Instance.GetComponent<AudioSource>();
+            instanceAudioSource.pitch = pitchValue;
+            instanceAudioSource.PlayOneShot(GetAudioClip(sound));
+            return;
+        }
+        if (_audioSource == null)
+        {
+            source.AddComponent<AudioSource>();
+            _audioSource = source.GetComponent<AudioSource>();
+        }
+        if (_audioSource)
+        {
+            {
+                _audioSource.pitch = pitchValue;
+                _audioSource.PlayOneShot(GetAudioClip(sound));
+                return;
+            }
+        }
+    }
+
 }
 
 

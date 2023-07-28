@@ -16,6 +16,12 @@ public class DiskMole : Mole
     private Color enabledColor;
 
     [SerializeField]
+    private Color popFast;
+
+    [SerializeField]
+    private Color popSlow;
+
+    [SerializeField]
     private Color fakeEnabledColor;
 
     [SerializeField]
@@ -149,21 +155,27 @@ public class DiskMole : Mole
         }
     }
 
-    protected override void PlayPop() 
+    protected override void PlayPop(float feedback)
     {
         Debug.Log(ShouldPerformanceFeedback());
         if (ShouldPerformanceFeedback()) {
             if (moleType==Mole.MoleType.Target)
             {
-                PlayAnimation("PopCorrectMole");  // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
+                PlayAnimation("PopCorrectMole"); // Show positive feedback to users that shoot a correct moles, to make it clear this is a success
+                Color colorFeedback = Color.Lerp(popSlow, popFast, feedback);
+                StartCoroutine(ChangeColorOverTime(enabledColor, colorFeedback, disabledColor, 0.1f, 0.15f));
+                meshMaterial.mainTexture = textureDisabled;
             }
             else
             {
                 PlayAnimation("PopWrongMole");    // Show negative feedback to users that shoot an incorrect moles, to make it clear this is a fail
+                meshMaterial.color = disabledColor;
+                meshMaterial.mainTexture = textureDisabled;
             }
-        }
-        meshMaterial.color=disabledColor;
-        meshMaterial.mainTexture=textureDisabled;
+        } else {
+                meshMaterial.color = disabledColor;
+                meshMaterial.mainTexture = textureDisabled;
+	}
         PlaySound(popSound);
         //base.PlayPop(); // we cannot change to popped state, this breaks WAIT:HIT for some reason.
     }
@@ -174,6 +186,40 @@ public class DiskMole : Mole
         meshMaterial.color = disabledColor;
         meshMaterial.mainTexture = textureDisabled;
     }
+    IEnumerator ChangeColorOverTime(Color colorStart, Color colorFeedback, Color colorEnd, float duration, float waitTime)
+    {
+        float elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorStart, colorFeedback, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Hold the end color for 0.1 seconds
+        yield return new WaitForSeconds(waitTime);
+
+        // Then transition back to the start color
+        elapsedTime = 0;
+        while (elapsedTime < duration)
+        {
+            meshMaterial.color = Color.Lerp(colorFeedback, colorStart, (elapsedTime / duration));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        // Then transition to the end color
+        elapsedTime = 0;
+        while (elapsedTime < 0.8f)
+        {
+            meshMaterial.color = Color.Lerp(colorStart, colorEnd, (elapsedTime / 0.8f));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        ChangeColor(colorEnd);
+    }
+
 
     // Plays a sound.
     private void PlaySound(AudioClip audioClip)

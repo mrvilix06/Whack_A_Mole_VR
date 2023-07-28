@@ -55,6 +55,9 @@ public abstract class Pointer : MonoBehaviour
     [SerializeField]
     protected float shotCooldown;
 
+    [SerializeReference]
+    public PerformanceManager performanceManager;
+
     protected LineRenderer laser;
 
     protected bool performancefeedback = true;
@@ -81,9 +84,18 @@ public abstract class Pointer : MonoBehaviour
     private Vector3 previousDirection;
     private Vector3 currentLaserOffset = Vector3.zero;
     private Vector3 smoothingVelocity = Vector3.zero;
-    private float lastTime = -1 ;
+    private float lastTime = -1;
 
     protected int pointerShootOrder = -1;
+
+    [System.Serializable]
+    public class OnMoleHit : UnityEvent<Mole, float> { }
+    public OnMoleHit onMoleHit;
+
+
+
+
+
 
     [System.Serializable]
     public class OnPointerShoot : UnityEvent { }
@@ -269,13 +281,14 @@ public abstract class Pointer : MonoBehaviour
         {
             if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
             {
-                Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point);
+                float feedback = performanceManager.GetFeedback();
+                Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point, feedback);
 
                 if (moleAnswer == Mole.MolePopAnswer.Ok) 
                 { 
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
-                    soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
-                } 
+                    soundManager.PlaySoundWithPitch(gameObject, SoundManager.Sound.greenMoleHit, feedback);
+                }
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)
                 {
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
