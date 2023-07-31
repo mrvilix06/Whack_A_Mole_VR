@@ -27,7 +27,7 @@ public class BasicPointer : Pointer
     private delegate void Del();
     private string hover = "";
 
-    public Vector3 MappedPosition { get; private set;}
+    public Vector3 MappedPosition { get; private set; }
 
 
     // Function called on VR update, since it can be faster/not synchronous to Update() function. Makes the Pointer slightly more reactive.
@@ -39,7 +39,7 @@ public class BasicPointer : Pointer
         Vector2 pos = new Vector2(laserOrigin.transform.position.x, laserOrigin.transform.position.y);
         MappedPosition = laserMapper.ConvertMotorSpaceToWallSpace(pos);
         Vector3 origin = laserOrigin.transform.position;
-        Vector3 rayDirection = (mappedPosition - origin).normalized;
+        Vector3 rayDirection = (MappedPosition - origin).normalized;
 
         RaycastHit hit;
         if (Physics.Raycast(laserOrigin.transform.position + laserOffset, rayDirection, out hit, 100f, Physics.DefaultRaycastLayers))
@@ -52,22 +52,24 @@ public class BasicPointer : Pointer
         }
         else
         {
-            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength; 
+            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength;
             laser.SetPosition(1, rayPosition);
             cursor.SetPosition(rayPosition);
             //UpdateLaser(false, rayDirection: laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength);
         }
-        if(SteamVR.active)
+        if (SteamVR.active)
         {
-            if (hit.collider) {
+            if (hit.collider)
+            {
                 Mole mole;
                 if (hit.collider.gameObject.TryGetComponent<Mole>(out mole))
                 {
                     Mole.States moleAnswer = mole.GetState();
                     if (moleAnswer == Mole.States.Enabled)
                     {
-                        if (hover == string.Empty) {
-                            hover =  mole.GetId().ToString();
+                        if (hover == string.Empty)
+                        {
+                            hover = mole.GetId().ToString();
                             loggerNotifier.NotifyLogger("Pointer Hover Begin", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
                             {
                                 {"ControllerHover", hover},
@@ -76,7 +78,8 @@ public class BasicPointer : Pointer
                         }
 
                         dwellTimer = dwellTimer + 0.1f;
-                        if (dwellTimer > dwellTime) {
+                        if (dwellTimer > dwellTime)
+                        {
                             pointerShootOrder++;
                             loggerNotifier.NotifyLogger(overrideEventParameters: new Dictionary<string, object>(){
                                 {"ControllerSmoothed", directionSmoothed},
@@ -102,30 +105,41 @@ public class BasicPointer : Pointer
                             });
                             Shoot(hit);
                         }
-                    }  else {
+                    }
+                    else
+                    {
                         CheckHoverEnd();
-                        if (dwellTimer > 0f) {
-                        dwellTimer = dwellTimer - 0.1f;
+                        if (dwellTimer > 0f)
+                        {
+                            dwellTimer = dwellTimer - 0.1f;
                         }
-                    }                 
-                } else {
+                    }
+                }
+                else
+                {
                     CheckHoverEnd();
-                    if (dwellTimer > 0f) {
+                    if (dwellTimer > 0f)
+                    {
                         dwellTimer = dwellTimer - 0.1f;
                     }
                 }
-            } else {
-                    CheckHoverEnd();
-                    if (dwellTimer > 0f) {
-                        dwellTimer = dwellTimer - 0.1f;
-                    }
+            }
+            else
+            {
+                CheckHoverEnd();
+                if (dwellTimer > 0f)
+                {
+                    dwellTimer = dwellTimer - 0.1f;
+                }
             }
         }
     }
 
 
-    private void CheckHoverEnd() {
-        if (hover != string.Empty) {
+    private void CheckHoverEnd()
+    {
+        if (hover != string.Empty)
+        {
             loggerNotifier.NotifyLogger("Pointer Hover End", EventLogger.EventType.PointerEvent, new Dictionary<string, object>()
             {
                 {"ControllerHover", hover},
@@ -144,7 +158,8 @@ public class BasicPointer : Pointer
         if (correctHit) newColor = shootColor;
         else newColor = badShootColor;
 
-        if (!performancefeedback) {
+        if (!performancefeedback)
+        {
             // don't show badShootColor if performance feedback is disabled.
             newColor = shootColor;
         }
@@ -153,9 +168,9 @@ public class BasicPointer : Pointer
     }
 
     // Ease function, Quart ratio.
-    private float EaseQuartOut (float k) 
+    private float EaseQuartOut(float k)
     {
-        return 1f - ((k -= 1f)*k*k*k);
+        return 1f - ((k -= 1f) * k * k * k);
     }
 
     // IEnumerator playing the shooting animation.
@@ -166,8 +181,8 @@ public class BasicPointer : Pointer
 
         // Generation of a color gradient from the shooting color to the default color (idle).
         Gradient colorGradient = new Gradient();
-        GradientColorKey[] colorKey = new GradientColorKey[2]{new GradientColorKey(laser.startColor, 0f), new GradientColorKey(transitionColor, 1f)};
-        GradientAlphaKey[] alphaKey = new GradientAlphaKey[2]{new GradientAlphaKey(laser.startColor.a, 0f), new GradientAlphaKey(transitionColor.a, 1f)};
+        GradientColorKey[] colorKey = new GradientColorKey[2] { new GradientColorKey(laser.startColor, 0f), new GradientColorKey(transitionColor, 1f) };
+        GradientAlphaKey[] alphaKey = new GradientAlphaKey[2] { new GradientAlphaKey(laser.startColor.a, 0f), new GradientAlphaKey(transitionColor.a, 1f) };
         colorGradient.SetKeys(colorKey, alphaKey);
 
         // Playing of the animation. The laser and Cursor color and scale are interpolated following the easing curve from the shooting values (increased size, red/green color)

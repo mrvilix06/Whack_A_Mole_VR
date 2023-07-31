@@ -11,8 +11,8 @@ functions on events to be overriden in its derived classes.
 
 public abstract class Pointer : MonoBehaviour
 {
-    protected enum States {Idle, CoolingDown}
-    protected enum AimAssistStates {None, Snap, Magnetize}
+    protected enum States { Idle, CoolingDown }
+    protected enum AimAssistStates { None, Snap, Magnetize }
 
     [SerializeField]
     private SteamVR_Input_Sources controller;
@@ -61,7 +61,7 @@ public abstract class Pointer : MonoBehaviour
     protected LineRenderer laser;
 
     protected bool performancefeedback = true;
-    
+
     [SerializeField]
     protected LaserCursor cursor;
 
@@ -89,22 +89,13 @@ public abstract class Pointer : MonoBehaviour
     protected int pointerShootOrder = -1;
 
     [System.Serializable]
-    public class OnMoleHit : UnityEvent<Mole, float> { }
-    public OnMoleHit onMoleHit;
-
-
-
-
-
-
-    [System.Serializable]
     public class OnPointerShoot : UnityEvent { }
     public OnPointerShoot onPointerShoot;
 
     // On Awake, gets the cursor object if there is one. Also connects the PositionUpdated function to the VR update event.
     void Awake()
     {
-        gameObject.GetComponent<SteamVR_Behaviour_Pose>().onTransformUpdated.AddListener(delegate{PositionUpdated();});
+        gameObject.GetComponent<SteamVR_Behaviour_Pose>().onTransformUpdated.AddListener(delegate { PositionUpdated(); });
     }
 
     // On start, inits the logger notifier.
@@ -143,15 +134,20 @@ public abstract class Pointer : MonoBehaviour
         laser = laserOrigin.GetComponent<LineRenderer>();
     }
 
-    public void SetPointerEnable(bool active) {
-        if (active) {
+    public void SetPointerEnable(bool active)
+    {
+        if (active)
+        {
             Enable();
-        } else {
+        }
+        else
+        {
             Disable();
         }
     }
 
-    public void SetPerformanceFeedback(bool perf) {
+    public void SetPerformanceFeedback(bool perf)
+    {
         performancefeedback = perf;
     }
 
@@ -200,13 +196,13 @@ public abstract class Pointer : MonoBehaviour
         }
         else
         {
-            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength; 
+            Vector3 rayPosition = laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength;
             laser.SetPosition(1, rayPosition);
             cursor.SetPosition(rayPosition);
             //UpdateLaser(false, rayDirection: laserOrigin.transform.InverseTransformDirection(rayDirection) * maxLaserLength);
         }
 
-        if(SteamVR.active)
+        if (SteamVR.active)
         {
             if (SteamVR_Actions._default.GrabPinch.GetStateDown(controller))
             {
@@ -238,8 +234,8 @@ public abstract class Pointer : MonoBehaviour
     }
 
     // Functions to call in the class implementation to add extra animation/effect behavior on shoot/cooldown.
-    protected virtual void PlayShoot(bool correctHit) {}
-    protected virtual void PlayCooldownEnd() {}
+    protected virtual void PlayShoot(bool correctHit) { }
+    protected virtual void PlayCooldownEnd() { }
 
     // Checks if a Mole is hovered and tells it to play the hovered efect.
     protected virtual void hoverMole(RaycastHit hit)
@@ -284,20 +280,30 @@ public abstract class Pointer : MonoBehaviour
                 float feedback = performanceManager.GetFeedback();
                 Mole.MolePopAnswer moleAnswer = mole.Pop(hit.point, feedback);
 
-                if (moleAnswer == Mole.MolePopAnswer.Ok) 
-                { 
+                if (moleAnswer == Mole.MolePopAnswer.Ok)
+                {
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
-                    soundManager.PlaySoundWithPitch(gameObject, SoundManager.Sound.greenMoleHit, feedback);
+                    if (performancefeedback)
+                    {
+                        soundManager.PlaySoundWithPitch(gameObject, SoundManager.Sound.greenMoleHit, feedback);
+                    }
+                    else
+                    {
+                        soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
+                    }
                 }
                 else if (moleAnswer == Mole.MolePopAnswer.Fake)
                 {
                     PlayShoot(moleAnswer == Mole.MolePopAnswer.Ok);
-                    if (performancefeedback) {
+                    if (performancefeedback)
+                    {
                         soundManager.PlaySound(gameObject, SoundManager.Sound.redMoleHit);
-                    } else {
+                    }
+                    else
+                    {
                         soundManager.PlaySound(gameObject, SoundManager.Sound.greenMoleHit);
                     }
-                } 
+                }
                 else if (moleAnswer == Mole.MolePopAnswer.Disabled)
                 {
                     RaiseMoleMissedEvent(hit.point);
@@ -306,16 +312,17 @@ public abstract class Pointer : MonoBehaviour
                 return;
             }
             RaiseMoleMissedEvent(hit.point);
-            if (performancefeedback) {
+            if (performancefeedback)
+            {
                 soundManager.PlaySound(gameObject, SoundManager.Sound.missedMole);
             }
-        } 
+        }
         else
         {
             soundManager.PlaySound(gameObject, SoundManager.Sound.outOfBoundClick);
         }
         PlayShoot(false);
-        
+
     }
 
     // Function raising a "Mole Missed" event.
@@ -331,7 +338,7 @@ public abstract class Pointer : MonoBehaviour
     private Vector3 GetRayDirection()
     {
         Vector3 direction = Vector3.zero;
-        switch(aimAssistState)
+        switch (aimAssistState)
         {
             case AimAssistStates.Snap:
                 direction = GetSnappedDirection();
@@ -345,7 +352,7 @@ public abstract class Pointer : MonoBehaviour
                 break;
         }
 
-        if(directionSmoothed) direction = GetSmoothedDirection(direction);
+        if (directionSmoothed) direction = GetSmoothedDirection(direction);
 
         return direction;
     }
@@ -353,17 +360,17 @@ public abstract class Pointer : MonoBehaviour
     private Vector3 GetSmoothedDirection(Vector3 aimedDirection)
     {
         var tempPreviousDirection = previousDirection;
-        float delta = 0 ;
-        if( lastTime > 0 )
+        float delta = 0;
+        if (lastTime > 0)
         {
-            delta = Time.time - lastTime ;
+            delta = Time.time - lastTime;
         }
-        lastTime = Time.time ;
+        lastTime = Time.time;
 
         previousDirection = aimedDirection;
         currentLaserOffset += (previousDirection - tempPreviousDirection);
         currentLaserOffset = Vector3.SmoothDamp(currentLaserOffset, Vector3.zero, ref smoothingVelocity, smoothTime, 1000f, delta);
-        
+
         return aimedDirection - currentLaserOffset;
     }
 
@@ -375,7 +382,7 @@ public abstract class Pointer : MonoBehaviour
             Collider[] collidersHit = Physics.OverlapSphere(hit.point, SnapMagnetizeRadius);
 
             List<Transform> molesHit = new List<Transform>();
-            foreach(Collider collider in collidersHit)
+            foreach (Collider collider in collidersHit)
             {
                 if (collider.gameObject.GetComponent<Mole>() != null)
                 {
@@ -388,7 +395,7 @@ public abstract class Pointer : MonoBehaviour
             float closestDistance = 1000f;
             Vector3 closestMolePosition = Vector3.zero;
 
-            foreach(Transform moleTransform in molesHit)
+            foreach (Transform moleTransform in molesHit)
             {
                 float moleDistance = Vector3.Distance(hit.point, moleTransform.position);
                 if (moleDistance < closestDistance)
@@ -410,7 +417,7 @@ public abstract class Pointer : MonoBehaviour
             Collider[] collidersHit = Physics.OverlapSphere(hit.point, SnapMagnetizeRadius);
 
             List<Transform> molesHit = new List<Transform>();
-            foreach(Collider collider in collidersHit)
+            foreach (Collider collider in collidersHit)
             {
                 if (collider.gameObject.GetComponent<Mole>() != null)
                 {
@@ -423,7 +430,7 @@ public abstract class Pointer : MonoBehaviour
             float closestDistance = 1000f;
             Vector3 closestMolePosition = Vector3.zero;
 
-            foreach(Transform moleTransform in molesHit)
+            foreach (Transform moleTransform in molesHit)
             {
                 float moleDistance = Vector3.Distance(hit.point, moleTransform.position);
                 if (moleDistance < closestDistance)

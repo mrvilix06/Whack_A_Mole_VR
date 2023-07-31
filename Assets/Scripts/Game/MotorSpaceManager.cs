@@ -153,6 +153,45 @@ public class MotorSpaceManager : MonoBehaviour
         SetMotorSpace((MotorSpaceInfo) motorSpaceLarge.Clone());
     }
 
+    public void SetMotorSpaceOutOfBoundsSignifierStatic()
+    {
+        if(motorspace == ActiveMotorSpace.Right)
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierStatic();
+        else if (motorspace == ActiveMotorSpace.Left)
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierStatic();
+        else if (motorspace == ActiveMotorSpace.Both)
+        {
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierStatic();
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierStatic();
+        }
+    }
+
+    public void SetMotorSpaceOutOfBoundsSignifierDynamic()
+    {
+        if (motorspace == ActiveMotorSpace.Right)
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierDynamic();
+        else if (motorspace == ActiveMotorSpace.Left)
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierDynamic();
+        else if (motorspace == ActiveMotorSpace.Both)
+        {
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierDynamic();
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierDynamic();
+        }
+    }
+
+    internal void SetMotorSpaceOutOfBoundsSignifierDynamicReversed()
+    {
+        if (motorspace == ActiveMotorSpace.Right)
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierDynamicReversed();
+        else if (motorspace == ActiveMotorSpace.Left)
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierDynamicReversed();
+        else if (motorspace == ActiveMotorSpace.Both)
+        {
+            MotorSpaceRight.SetMotorSpaceOutOfBoundsSignifierDynamicReversed();
+            MotorSpaceLeft.SetMotorSpaceOutOfBoundsSignifierDynamicReversed();
+        }
+    }
+
     public void SetMotorSpace(MotorSpaceInfo m) {
         bool mRState = MotorSpaceRight.gameObject.activeSelf;
         bool mLState = MotorSpaceLeft.gameObject.activeSelf;

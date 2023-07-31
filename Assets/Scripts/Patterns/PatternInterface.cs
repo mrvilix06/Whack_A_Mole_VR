@@ -350,6 +350,11 @@ public class PatternInterface : MonoBehaviour
         {
             modifiersManager.SetMotorspace((ModifiersManager.MotorspaceSize)System.Enum.Parse( typeof(ModifiersManager.MotorspaceSize), tempValue));
         }
+        // Set Motorspace OutOfBounds with enum ModifiersManager.MotorspaceOutOfBoundsSignifier parsed from string
+        if (action.TryGetValue("MOTORSPACEOOBSIGNIFICANT", out tempValue))
+        {
+            modifiersManager.SetMotorspaceOutOfBoundsSignifier((ModifiersManager.MotorspaceOutOfBoundsSignifier)System.Enum.Parse(typeof(ModifiersManager.MotorspaceOutOfBoundsSignifier), tempValue));
+        }
         if (action.TryGetValue("PERFORMANCEFEEDBACK", out tempValue))
         {
             modifiersManager.SetPerformanceFeedback(bool.Parse(tempValue));

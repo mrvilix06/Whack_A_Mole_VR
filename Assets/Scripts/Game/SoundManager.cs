@@ -15,8 +15,9 @@ public class SoundManager : MonoBehaviour
     [SerializeField]
     public SoundAudioClip[] soundAudioClipArray;
 
-    public enum Sound {
-        greenMoleHit, 
+    public enum Sound
+    {
+        greenMoleHit,
         neutralMoleHit,
         redMoleHit,
         missedMole,
@@ -33,7 +34,7 @@ public class SoundManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-        } 
+        }
         // If there is an existing instance, destroy it. 
         else if (Instance != this)
         {
@@ -50,7 +51,7 @@ public class SoundManager : MonoBehaviour
     {                                           // corresponding sound object that it's looking for - else return null and msg
         foreach (SoundAudioClip soundAudioClip in soundAudioClipArray)
         {
-            if(soundAudioClip.sound == sound)
+            if (soundAudioClip.sound == sound)
             {
                 return soundAudioClip.audio;
             }
@@ -74,8 +75,8 @@ public class SoundManager : MonoBehaviour
         {
             source.AddComponent<AudioSource>();
             _audioSource = source.GetComponent<AudioSource>();
-        } 
-        
+        }
+
         if (_audioSource)
         {
             _audioSource.pitch = 1f; // reset pitch to 1f in case it was changed by PlaySoundWithPitch
@@ -85,8 +86,7 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySoundWithPitch(GameObject source, Sound sound, float feedback)
     {
-        float pitchValue = (feedback*0.47f)+0.7f;
-        Debug.Log("Pitch value: " + pitchValue);
+        float pitchValue = (feedback * 0.47f) + 0.7f;
         AudioSource _audioSource = source.GetComponent<AudioSource>();
         if (source == null)
         {
