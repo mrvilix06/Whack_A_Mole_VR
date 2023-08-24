@@ -31,6 +31,9 @@ public class SampleLogger : MonoBehaviour
     private TrackerHub trackerHub;
     private LoggingManager loggingManager;
 
+    private bool isLoggingStarted = false;
+
+
     // private Dictionary<string, Dictionary<int, string>> logs = new Dictionary<string, Dictionary<int, string>>();
 
     // private int logCount = 0;
@@ -84,17 +87,23 @@ public class SampleLogger : MonoBehaviour
         }
     }
 
-    public void StartLogging() {
+    public void StartLogging()
+    {
+        if (isLoggingStarted) return; // If the sample logger is already started, return. To avoid some useless GC alloc.
+
         trackerHub.StartTrackers();
-        //InitFile();
         StartCoroutine("SampleLog", samplingFrequency);
+        //InitFile();
+        isLoggingStarted = true;
     }
 
-    public void FinishLogging() {
+    public void FinishLogging()
+    {
         trackerHub.StopTrackers();
         StopCoroutine("SampleLog");
         //SaveCsvLogs();
         //ResetLogs();
+        isLoggingStarted = false;
     }
 
     // Generates a "logs" row (see class description) from the given datas. Adds mandatory parameters and 
